@@ -9,6 +9,7 @@ declare module '@nodutilus/clasyquelize' {
 
   export class ClasyModel extends Model {
     static attribute(): any
+    static attach(sequelize: Sequelize): void
   }
 
 }

@@ -12,7 +12,7 @@ class Entity extends ClasyModel {
 
 class User extends Entity {
 
-  static username = this.attribute({ type: DataTypes.STRING })
+  static username = DataTypes.STRING
 
 }
 

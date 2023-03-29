@@ -9,7 +9,7 @@ class Clasyquelize extends Sequelize {
    */
   attachModel(...models) {
     for (const model of models) {
-      model.init({}, { sequelize: this })
+      model.attach(this)
     }
   }
 
@@ -107,22 +107,12 @@ class ClasyModel extends Model {
   }
 
   /**
-   * @param {import('sequelize').ModelAttributes} attrs
-   * @param {import('sequelize').InitOptions} options
-   * @returns {import('sequelize').ModelStatic<ClasyModel>}
+   * @param {import('sequelize').Sequelize} sequelize
    */
-  static init(attrs, options) {
+  static attach(sequelize) {
     const { attributes, indexes } = serializeClasyModel(this)
 
-    Object.assign(attributes, attrs)
-
-    if (options instanceof Sequelize) {
-      options = { sequelize: options, indexes }
-    } else {
-      options.indexes = 'indexes' in options ? indexes.concat(options.indexes) : indexes
-    }
-
-    return super.init(attributes, options)
+    this.init(attributes, { sequelize, indexes })
   }
 
 }
