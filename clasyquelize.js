@@ -98,15 +98,13 @@ class ClasyModel extends Model {
    * @param {import('sequelize').Sequelize | import('sequelize').InitOptions} options
    * @returns {import('sequelize').ModelStatic<ClasyModel>}
    */
-  static init(options = {}) {
+  static init(options) {
     const { attributes, indexes } = serializeClasyModel(this)
 
     if (options instanceof Sequelize) {
       options = { sequelize: options, indexes }
-    } else if ('indexes' in options) {
-      options.indexes = indexes.concat(options.indexes)
     } else {
-      options.indexes = indexes
+      options.indexes = 'indexes' in options ? indexes.concat(options.indexes) : indexes
     }
 
     return super.init(attributes, options)
