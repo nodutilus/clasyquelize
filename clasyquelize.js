@@ -2,6 +2,18 @@ import { Sequelize, Model } from 'sequelize'
 
 const serialize = Symbol('serialize')
 
+class Clasyquelize extends Sequelize {
+
+  /**
+   * @param  {... typeof ClasyModel} models
+   */
+  attachModel(...models) {
+    for (const model of models) {
+      model.init({}, { sequelize: this })
+    }
+  }
+
+}
 
 class ClasyAttribute {
 
@@ -21,7 +33,7 @@ class ClasyAttribute {
    * @param {import('sequelize').ModelIndexesOptions} [options]
    * @returns {ClasyAttribute}
    */
-  indexe(options = {}) {
+  index(options = {}) {
     if (!this.#indexes) {
       this.#indexes = []
     }
@@ -36,9 +48,9 @@ class ClasyAttribute {
    */
   [serialize](name) {
     if (this.#indexes) {
-      for (const indexe of this.#indexes) {
-        if (!('fields' in indexe)) {
-          indexe.fields = [name]
+      for (const index of this.#indexes) {
+        if (!('fields' in index)) {
+          index.fields = [name]
         }
       }
     }
@@ -90,16 +102,19 @@ class ClasyModel extends Model {
    * @param {import('sequelize').ModelIndexesOptions} [options]
    * @returns {ClasyIndex}
    */
-  static indexe(options) {
+  static index(options) {
     return new ClasyIndex(options)
   }
 
   /**
-   * @param {import('sequelize').Sequelize | import('sequelize').InitOptions} options
+   * @param {import('sequelize').ModelAttributes} attrs
+   * @param {import('sequelize').InitOptions} options
    * @returns {import('sequelize').ModelStatic<ClasyModel>}
    */
-  static init(options) {
+  static init(attrs, options) {
     const { attributes, indexes } = serializeClasyModel(this)
+
+    Object.assign(attributes, attrs)
 
     if (options instanceof Sequelize) {
       options = { sequelize: options, indexes }
@@ -152,5 +167,5 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
   return { attributes, indexes }
 }
 
-
-export { ClasyModel }
+export * from 'sequelize'
+export { Clasyquelize, ClasyModel }

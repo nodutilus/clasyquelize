@@ -8,6 +8,7 @@
   "exports": {
     ".": "./clasyquelize.js"
   },
+  "types": "./types.d.ts",
   "engines": {
     "node": ">=18"
   },
@@ -16,7 +17,8 @@
   },
   "devDependencies": {
     "@nodutilus/project-config": "latest",
-    "sequelize": "latest"
+    "sequelize": "latest",
+    "sqlite3": "latest"
   },
   "scripts": {
     "test": "node test"
