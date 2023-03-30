@@ -18,7 +18,8 @@
   "devDependencies": {
     "@nodutilus/project-config": "latest",
     "sequelize": "latest",
-    "sqlite3": "latest"
+    "sqlite3": "latest",
+    "pg": "latest"
   },
   "scripts": {
     "test": "node test"

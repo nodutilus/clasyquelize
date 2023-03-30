@@ -1,6 +1,19 @@
+import { existsSync, readFileSync } from 'fs'
 import { Clasyquelize, ClasyModel, DataTypes } from '@nodutilus/clasyquelize'
 
-const sequelize = new Clasyquelize('sqlite:database.sqlite')
+const env = {
+  DATABASE: 'sqlite:database.sqlite'
+}
+const envPath = '.env.json'
+
+if (existsSync(envPath)) {
+  Object.assign(env, JSON.parse(readFileSync(envPath, 'utf-8')))
+} else {
+  console.error(new Error(`Not found ${envPath}`))
+  process.exit(0)
+}
+
+const sequelize = new Clasyquelize(env.DATABASE)
 
 
 class Entity extends ClasyModel {
@@ -10,17 +23,20 @@ class Entity extends ClasyModel {
 
 }
 
+
 class User extends Entity {
 
   static username = DataTypes.STRING
+  static iUsername = this.index({ fields: ['username'] })
 
 }
 
 
-sequelize.attachModel(User);
+sequelize.attachModel(User)
+sequelize.sync({ force: true }).then(async () => {
+  const usr = await User.create({ id: 1, uuid: 'uuid4', username: 'name' })
 
-(async () => {
-  const usr = await User.create({ id: 1, username: 1 })
+  console.log(usr.toJSON())
 
-  console.log(usr)
-})()
+  await sequelize.close()
+}).catch(console.error)

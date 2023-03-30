@@ -1,4 +1,4 @@
-import { Sequelize, Model } from 'sequelize'
+import { Sequelize, Model, DataTypes } from 'sequelize'
 
 const serialize = Symbol('serialize')
 
@@ -135,6 +135,8 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
         if (attrIndexes) {
           ownIndexes.push(...attrIndexes)
         }
+      } else if (value in DataTypes) {
+        ownAttributes[key] = value
       } else if (value instanceof ClasyIndex) {
         const { options } = value[serialize](key)
 
