@@ -8,9 +8,6 @@ const envPath = '.env.json'
 
 if (existsSync(envPath)) {
   Object.assign(env, JSON.parse(readFileSync(envPath, 'utf-8')))
-} else {
-  console.error(new Error(`Not found ${envPath}`))
-  process.exit(0)
 }
 
 const sequelize = new Clasyquelize(env.DATABASE)
