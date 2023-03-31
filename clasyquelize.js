@@ -47,15 +47,22 @@ class ClasyAttribute {
    * @returns {{options:import('sequelize').DataType | import('sequelize').ModelAttributeColumnOptions,indexes:import('sequelize').ModelIndexesOptions[]}}
    */
   [serialize](name) {
+    const options = Object.assign({}, this.#options)
+    let indexes = null
+
     if (this.#indexes) {
-      for (const index of this.#indexes) {
+      indexes = []
+      for (const indexRaw of this.#indexes) {
+        const { options: index } = new ClasyIndex(indexRaw)[serialize]()
+
         if (!('fields' in index)) {
           index.fields = [name]
         }
+        indexes.push(index)
       }
     }
 
-    return { options: this.#options, indexes: this.#indexes }
+    return { options, indexes }
   }
 
 }
@@ -74,21 +81,29 @@ class ClasyIndex {
   }
 
   /**
-   * @param {string} name
+   * @param {string} [name]
    * @returns {{options:import('sequelize').ModelIndexesOptions}}
    */
   [serialize](name) {
-    if (!('name' in this.#options)) {
-      this.#options.name = name
+    const options = Object.assign({}, this.#options)
+
+    if (!('name' in options) && name) {
+      options.name = name
+    }
+    if ('fields' in options) {
+      options.fields = Array.from(options.fields)
     }
 
-    return { options: this.#options }
+    return { options }
   }
 
 }
 
 
 class ClasyModel extends Model {
+
+  /** @type {WeakMap<typeof ClasyModel, Set<()=>void>> } */
+  static #associations = new WeakMap()
 
   /**
    * @param  {import('sequelize').DataType | import('sequelize').ModelAttributeColumnOptions} options
@@ -107,12 +122,29 @@ class ClasyModel extends Model {
   }
 
   /**
+   * @param {()=>void} fn
+   */
+  static associate(fn) {
+    if (!ClasyModel.#associations.has(this)) {
+      ClasyModel.#associations.set(this, new Set([fn]))
+    } else {
+      ClasyModel.#associations.get(this).add(fn)
+    }
+  }
+
+  /**
    * @param {import('sequelize').Sequelize} sequelize
    */
   static attach(sequelize) {
     const { attributes, indexes } = serializeClasyModel(this)
 
     this.init(attributes, { sequelize, indexes })
+
+    if (ClasyModel.#associations.has(this)) {
+      for (const association of ClasyModel.#associations.get(this)) {
+        association()
+      }
+    }
   }
 
 }
@@ -137,6 +169,11 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
         }
       } else if (value in DataTypes) {
         ownAttributes[key] = value
+      } else if (Object.isPrototypeOf.call(Model, value)) {
+        model.associate(() => {
+          value.hasMany(model, { foreignKey: key })
+          model.belongsTo(value, { foreignKey: key })
+        })
       } else if (value instanceof ClasyIndex) {
         const { options } = value[serialize](key)
 

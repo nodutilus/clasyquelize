@@ -6,6 +6,12 @@
       "request": "launch",
       "name": "Current file",
       "program": "${file}"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Tests",
+      "program": "${workspaceFolder}/test.js"
     }
   ]
 }
