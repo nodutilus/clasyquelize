@@ -44,6 +44,7 @@ sequelize.sync({ force: true }).then(async () => {
   // await Book.findAll({ include: { model: User, as: 'author' } })
 
   console.log(usr.toJSON())
+  console.log((await User.findByPk(1, { include: Book })).toJSON())
   console.log(bk.toJSON())
   console.log((await Book.findByPk(1, { include: User })).toJSON())
 
