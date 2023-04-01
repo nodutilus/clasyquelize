@@ -26,13 +26,22 @@ class User extends Entity {
 }
 
 
-class Book extends Entity {
+class Company extends Entity {
 
-  static title = DataTypes.STRING
-  static author = User
+  static companyname = DataTypes.STRING
+  static iCompanyname = this.index({ fields: ['companyname'] })
 
 }
 
 
-sequelize.attachModel(User, Book)
+class Book extends Entity {
+
+  static title = DataTypes.STRING
+  static author = User
+  static publisher = Company
+
+}
+
+
+sequelize.attachModel(User, Company, Book)
 ```

@@ -1,6 +1,8 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 
 const serialize = Symbol('serialize')
+const associate = Symbol('associate')
+
 
 class Clasyquelize extends Sequelize {
 
@@ -14,6 +16,7 @@ class Clasyquelize extends Sequelize {
   }
 
 }
+
 
 class ClasyAttribute {
 
@@ -124,11 +127,11 @@ class ClasyModel extends Model {
   /**
    * @param {()=>void} fn
    */
-  static associate(fn) {
-    if (!ClasyModel.#associations.has(this)) {
-      ClasyModel.#associations.set(this, new Set([fn]))
-    } else {
+  static [associate](fn) {
+    if (ClasyModel.#associations.has(this)) {
       ClasyModel.#associations.get(this).add(fn)
+    } else {
+      ClasyModel.#associations.set(this, new Set([fn]))
     }
   }
 
@@ -170,7 +173,7 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
       } else if (value in DataTypes) {
         ownAttributes[key] = value
       } else if (Object.isPrototypeOf.call(Model, value)) {
-        model.associate(() => {
+        model[associate](() => {
           value.hasMany(model, { foreignKey: key })
           model.belongsTo(value, { foreignKey: key })
         })
