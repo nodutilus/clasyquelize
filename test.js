@@ -15,8 +15,14 @@ const sequelize = new Clasyquelize(env.DATABASE)
 
 class Entity extends ClasyModel {
 
-  static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, allowNull: false })
+  static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true })
   static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index()
+
+  static async findByUUID(uuid, options = {}) {
+    const entity = await this.findOne(Object.assign(options, { where: { uuid } }))
+
+    return entity
+  }
 
 }
 
@@ -45,18 +51,24 @@ class Book extends Entity {
 
 }
 
-sequelize.attachModel(User, Company, Book)
-sequelize.sync({ force: true }).then(async () => {
-  const usr = await User.create({ id: 1, uuid: 'uuid4', username: 'username' })
-  const cmpn = await Company.create({ id: 1, uuid: 'uuid4', companyname: 'companyname' })
-  const bk = await Book.create({ id: 1, uuid: 'uuid4', title: 'title', author: usr.id, publisher: cmpn.id })
+(async () => {
+  sequelize.attachModel(User, Company, Book)
+  await sequelize.sync({ force: true })
 
-  // await Book.findAll({ include: { model: User, as: 'author' } })
+  const book1 = await Book.create({
+    uuid: 'uuid4_book_1',
+    title: 'title',
+    User: { uuid: 'uuid4_user_1', username: 'username' },
+    Company: { uuid: 'uuid4_company_1', companyname: 'companyname' }
+  }, {
+    include: [
+      { association: Book.associations.User },
+      { association: Book.associations.Company }
+    ]
+  })
 
-  console.log(usr.toJSON())
-  console.log((await User.findByPk(1, { include: Book })).toJSON())
-  console.log(bk.toJSON())
-  console.log((await Book.findByPk(1, { include: [User, Company] })).toJSON())
+  console.log(book1.toJSON())
+  console.log((await Book.findByUUID('uuid4_book_1', { include: [User, Company] })).toJSON())
 
   await sequelize.close()
-}).catch(console.error)
+})()
