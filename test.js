@@ -58,17 +58,17 @@ class Book extends Entity {
   const book1 = await Book.create({
     uuid: 'uuid4_book_1',
     title: 'title',
-    User: { uuid: 'uuid4_user_1', username: 'username' },
-    Company: { uuid: 'uuid4_company_1', companyname: 'companyname' }
+    author: { uuid: 'uuid4_user_1', username: 'username' },
+    publisher: { uuid: 'uuid4_company_1', companyname: 'companyname' }
   }, {
-    include: [
-      { association: Book.associations.User },
-      { association: Book.associations.Company }
-    ]
+    include: [Book.author, Book.publisher]
   })
+  const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.publisher] })
+  // const author1Read = await User.findByUUID('uuid4_user_1', { include: [Book.author] })
 
-  console.log(book1.toJSON())
-  console.log((await Book.findByUUID('uuid4_book_1', { include: [User, Company] })).toJSON())
+  console.log('Book.create', book1.toJSON())
+  console.log('Book.findByUUID', book1Read.toJSON())
+  // console.log(author1Read.toJSON())
 
   await sequelize.close()
 })()

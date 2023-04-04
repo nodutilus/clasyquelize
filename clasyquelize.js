@@ -174,8 +174,9 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
         ownAttributes[key] = value
       } else if (Object.isPrototypeOf.call(Model, value)) {
         model[associate](() => {
-          value.hasMany(model, { foreignKey: key })
-          model.belongsTo(value, { foreignKey: key })
+          const { foreignKey } = model[key] = model.belongsTo(value, { as: key })
+
+          value.hasMany(model, { as: key, foreignKey })
         })
       } else if (value instanceof ClasyIndex) {
         const { options } = value[serialize](key)
