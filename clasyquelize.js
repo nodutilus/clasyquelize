@@ -2,6 +2,7 @@ import { Sequelize, Model, DataTypes } from 'sequelize'
 
 const serialize = Symbol('serialize')
 const associate = Symbol('associate')
+const associations = Symbol('associations')
 
 
 class Clasyquelize extends Sequelize {
@@ -106,6 +107,8 @@ class ClasyIndex {
 class ClasyModel extends Model {
 
   /** @type {WeakMap<typeof ClasyModel, Set<()=>void>> } */
+  static #associationsFn = new WeakMap()
+  /** @type {WeakMap<typeof ClasyModel, WeakMap<typeof ClasyModel | import('sequelize').Association, import('sequelize').Association>> } */
   static #associations = new WeakMap()
 
   /**
@@ -125,13 +128,23 @@ class ClasyModel extends Model {
   }
 
   /**
+   * @param {typeof ClasyModel | import('sequelize').Association} association
+   * @returns {import('sequelize').Association|void}
+   */
+  static as(association) {
+    if (ClasyModel.#associations.has(this)) {
+      return ClasyModel.#associations.get(this).get(association)
+    }
+  }
+
+  /**
    * @param {()=>void} fn
    */
   static [associate](fn) {
-    if (ClasyModel.#associations.has(this)) {
-      ClasyModel.#associations.get(this).add(fn)
+    if (ClasyModel.#associationsFn.has(this)) {
+      ClasyModel.#associationsFn.get(this).add(fn)
     } else {
-      ClasyModel.#associations.set(this, new Set([fn]))
+      ClasyModel.#associationsFn.set(this, new Set([fn]))
     }
   }
 
@@ -143,8 +156,8 @@ class ClasyModel extends Model {
 
     this.init(attributes, { sequelize, indexes })
 
-    if (ClasyModel.#associations.has(this)) {
-      for (const association of ClasyModel.#associations.get(this)) {
+    if (ClasyModel.#associationsFn.has(this)) {
+      for (const association of ClasyModel.#associationsFn.get(this)) {
         association()
       }
     }
@@ -172,11 +185,13 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
         }
       } else if (value in DataTypes) {
         ownAttributes[key] = value
-      } else if (Object.isPrototypeOf.call(Model, value)) {
+      } else if (Object.isPrototypeOf.call(ClasyModel, value)) {
         model[associate](() => {
           const { foreignKey } = model[key] = model.belongsTo(value, { as: key })
+          const association = value.hasMany(model, { foreignKey, as: key })
 
-          value.hasMany(model, { foreignKey })
+          value[associations].set(model, association)
+          value[associations].set(model[key], association)
         })
       } else if (value instanceof ClasyIndex) {
         const { options } = value[serialize](key)

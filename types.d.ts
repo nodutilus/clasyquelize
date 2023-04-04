@@ -1,6 +1,10 @@
 declare module '@nodutilus/clasyquelize' {
 
-  import { Sequelize, Model, DataType, ModelAttributeColumnOptions, ModelIndexesOptions } from 'sequelize'
+  import {
+    Sequelize, Model, DataType,
+    ModelAttributeColumnOptions, ModelIndexesOptions,
+    Association
+  } from 'sequelize'
   export * from 'sequelize'
 
   class ClasyAttribute {
@@ -16,6 +20,7 @@ declare module '@nodutilus/clasyquelize' {
   export class ClasyModel extends Model {
     static attribute(options: DataType | ModelAttributeColumnOptions): ClasyAttribute
     static index(options?: ModelIndexesOptions): ClasyIndex
+    static as(association: typeof ClasyModel | Association): Association
     static attach(sequelize: Sequelize): void
     [x: string]: any
   }
