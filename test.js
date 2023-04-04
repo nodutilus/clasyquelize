@@ -64,11 +64,11 @@ class Book extends Entity {
     include: [Book.author, Book.publisher]
   })
   const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.publisher] })
-  // const author1Read = await User.findByUUID('uuid4_user_1', { include: [Book.author] })
+  const author1Read = await User.findByUUID('uuid4_user_1', { include: [Book] })
 
   console.log('Book.create', book1.toJSON())
   console.log('Book.findByUUID', book1Read.toJSON())
-  // console.log(author1Read.toJSON())
+  console.log('User.findByUUID', author1Read.toJSON())
 
   await sequelize.close()
 })()
