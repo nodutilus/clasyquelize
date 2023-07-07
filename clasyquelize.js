@@ -1,8 +1,6 @@
 import { Sequelize, Model, DataTypes } from 'sequelize'
 
 const serialize = Symbol('serialize')
-const associate = Symbol('associate')
-const associations = Symbol('associations')
 
 
 class Clasyquelize extends Sequelize {
@@ -104,12 +102,12 @@ class ClasyIndex {
 }
 
 
-class ClasyModel extends Model {
+/** @type {WeakMap<typeof ClasyModel, Set<()=>void>> } */
+const associationsFnScope = new WeakMap()
+/** @type {WeakMap<typeof ClasyModel, WeakMap<typeof ClasyModel | import('sequelize').Association, import('sequelize').Association>> } */
+const associationsScope = new WeakMap()
 
-  /** @type {WeakMap<typeof ClasyModel, Set<()=>void>> } */
-  static #associationsFn = new WeakMap()
-  /** @type {WeakMap<typeof ClasyModel, WeakMap<typeof ClasyModel | import('sequelize').Association, import('sequelize').Association>> } */
-  static #associations = new WeakMap()
+class ClasyModel extends Model {
 
   /**
    * @param  {import('sequelize').DataType | import('sequelize').ModelAttributeColumnOptions} options
@@ -132,19 +130,8 @@ class ClasyModel extends Model {
    * @returns {import('sequelize').Association|void}
    */
   static as(association) {
-    if (ClasyModel.#associations.has(this)) {
-      return ClasyModel.#associations.get(this).get(association)
-    }
-  }
-
-  /**
-   * @param {()=>void} fn
-   */
-  static [associate](fn) {
-    if (ClasyModel.#associationsFn.has(this)) {
-      ClasyModel.#associationsFn.get(this).add(fn)
-    } else {
-      ClasyModel.#associationsFn.set(this, new Set([fn]))
+    if (associationsScope.has(this)) {
+      return associationsScope.get(this).get(association)
     }
   }
 
@@ -156,8 +143,8 @@ class ClasyModel extends Model {
 
     this.init(attributes, { sequelize, indexes })
 
-    if (ClasyModel.#associationsFn.has(this)) {
-      for (const association of ClasyModel.#associationsFn.get(this)) {
+    if (associationsFnScope.has(this)) {
+      for (const association of associationsFnScope.get(this)) {
         association()
       }
     }
@@ -186,12 +173,14 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
       } else if (value in DataTypes) {
         ownAttributes[key] = value
       } else if (Object.isPrototypeOf.call(ClasyModel, value)) {
-        model[associate](() => {
+        if (!associationsFnScope.has(model)) associationsFnScope.set(model, new Set([]))
+        associationsFnScope.get(model).add(() => {
           const { foreignKey } = model[key] = model.belongsTo(value, { as: key })
           const association = value.hasMany(model, { foreignKey, as: key })
 
-          value[associations].set(model, association)
-          value[associations].set(model[key], association)
+          if (!associationsScope.has(value)) associationsScope.set(value, new WeakMap())
+          associationsScope.get(value).set(model, association)
+          associationsScope.get(value).set(model[key], association)
         })
       } else if (value instanceof ClasyIndex) {
         const { options } = value[serialize](key)

@@ -16,7 +16,7 @@ const sequelize = new Clasyquelize(env.DATABASE)
 class Entity extends ClasyModel {
 
   static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true })
-  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index()
+  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index({ unique: true })
 
   static async findByUUID(uuid, options = {}) {
     const entity = await this.findOne(Object.assign(options, { where: { uuid } }))
@@ -56,13 +56,17 @@ class Book extends Entity {
   sequelize.attachModel(User, Company, Book)
   await sequelize.sync({ force: true })
 
+  const user1 = await User.create({
+    uuid: 'uuid4_user_1', username: 'username'
+  })
   const book1 = await Book.create({
     uuid: 'uuid4_book_1',
     title: 'title',
-    author: { uuid: 'uuid4_user_1', username: 'username' },
+    author: user1,
+    chiefEditor: user1,
     publisher: { uuid: 'uuid4_company_1', companyname: 'companyname' }
   }, {
-    include: [Book.author, Book.publisher]
+    include: [Book.author, Book.chiefEditor, Book.publisher]
   })
   const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.publisher] })
   const author1Read = await User.findByUUID('uuid4_user_1', { include: [User.as(Book)] })
