@@ -175,8 +175,8 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
       } else if (Object.isPrototypeOf.call(ClasyModel, value)) {
         if (!associationsFnScope.has(model)) associationsFnScope.set(model, new Set([]))
         associationsFnScope.get(model).add(() => {
-          const { foreignKey } = model[key] = model.belongsTo(value, { as: key })
-          const association = value.hasMany(model, { foreignKey, as: key })
+          const { foreignKey, as } = model[key] = model.belongsTo(value, { foreignKey: key, as: `$${key}` })
+          const association = value.hasMany(model, { foreignKey, as })
 
           if (!associationsScope.has(value)) associationsScope.set(value, new WeakMap())
           associationsScope.get(value).set(model, association)
