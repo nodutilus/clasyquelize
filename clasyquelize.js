@@ -204,5 +204,6 @@ function serializeClasyModel(model, options = { attributes: {}, indexes: [], all
   return { attributes, indexes }
 }
 
+
 export * from 'sequelize'
 export { Clasyquelize, ClasyModel }
