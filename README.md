@@ -12,8 +12,14 @@ const sequelize = new Clasyquelize('sqlite:database.sqlite')
 
 class Entity extends ClasyModel {
 
-  static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, allowNull: false })
-  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index()
+  static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true })
+  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index({ unique: true })
+
+  static async findByUUID(uuid, options = {}) {
+    const entity = await this.findOne(Object.assign(options, { where: { uuid } }))
+
+    return entity
+  }
 
 }
 
@@ -38,6 +44,7 @@ class Book extends Entity {
 
   static title = DataTypes.STRING
   static author = User
+  static chiefEditor = User
   static publisher = Company
 
 }
