@@ -56,21 +56,19 @@ class Book extends Entity {
   sequelize.attachModel(User, Company, Book)
   await sequelize.sync({ force: true })
 
-  const user1 = await User.create({ uuid: 'uuid4_user_1', username: 'username' })
-  const compan1 = await Company.create({ uuid: 'uuid4_company_1', companyname: 'companyname' })
-  const book1 = await Book.create({
+  const user = await User.create({ uuid: 'uuid4_user_1', username: 'username' })
+  const compan = await Company.create({ uuid: 'uuid4_company_1', companyname: 'companyname' })
+  const book = await Book.create({
     uuid: 'uuid4_book_1',
     title: 'title',
-    author: user1.id,
-    chiefEditor: user1.id,
-    publisher: compan1.id
-  }, {
-    include: [Book.author, Book.chiefEditor, Book.publisher]
+    author: user.id,
+    chiefEditor: user.id,
+    publisher: compan.id
   })
   const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.chiefEditor, Book.publisher] })
   const author1Read = await User.findByUUID('uuid4_user_1', { include: [User.as(Book.author), User.as(Book.chiefEditor)] })
 
-  console.log('Book.create', book1.toJSON())
+  console.log('Book.create', book.toJSON())
   console.log('Book.findByUUID', book1Read.toJSON())
   console.log('User.findByUUID', author1Read.toJSON())
 
