@@ -11,7 +11,5 @@ on:
 jobs:
   main:
     uses: nodutilus/project-actions/.github/workflows/main.yml@main
-    with:
-      publish: false
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
