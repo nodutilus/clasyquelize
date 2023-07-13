@@ -6,7 +6,8 @@ const sequelize = new Clasyquelize('sqlite:database.sqlite')
 class Entity extends ClasyModel {
 
   static id = this.attribute({ type: DataTypes.BIGINT, primaryKey: true, autoIncrement: true })
-  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false }).index({ unique: true })
+  static uuid = this.attribute({ type: DataTypes.STRING, allowNull: false })
+    .index({ unique: true })
 
   static async findByUUID(uuid, options = {}) {
     const entity = await this.findOne(Object.assign(options, { where: { uuid } }))
