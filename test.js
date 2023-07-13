@@ -64,8 +64,12 @@ class Book extends Entity {
     chiefEditor: user2.id,
     publisher: compan.id
   })
-  const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.chiefEditor, Book.publisher] })
-  const author1Read = await User.findByUUID('uuid4_user_1', { include: [User.as(Book.author), User.as(Book.chiefEditor)] })
+  const book1Read = await Book.findByUUID('uuid4_book_1', {
+    include: [Book.author, Book.chiefEditor, Book.publisher]
+  })
+  const author1Read = await User.findByUUID('uuid4_user_1', {
+    include: [User.as(Book.author), User.as(Book.chiefEditor)]
+  })
 
   console.log('Book1.create:', book1.toJSON())
   console.log('Book2.create:', book2.toJSON())
