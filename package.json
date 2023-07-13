@@ -12,6 +12,10 @@
   "engines": {
     "node": ">=18"
   },
+  "files": [
+    "clasyquelize.js",
+    "types.d.ts"
+  ],
   "peerDependencies": {
     "sequelize": "6.x"
   },
