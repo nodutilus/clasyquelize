@@ -19,7 +19,8 @@
     "@nodutilus/project-config": "latest",
     "sequelize": "latest",
     "sqlite3": "latest",
-    "pg": "latest"
+    "pg": "latest",
+    "remark": "14.0.3"
   },
   "scripts": {
     "test": "node test"

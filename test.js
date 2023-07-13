@@ -1,16 +1,6 @@
-import { existsSync, readFileSync } from 'fs'
 import { Clasyquelize, ClasyModel, DataTypes } from '@nodutilus/clasyquelize'
 
-const env = {
-  DATABASE: 'sqlite:database.sqlite'
-}
-const envPath = '.env.json'
-
-if (existsSync(envPath)) {
-  Object.assign(env, JSON.parse(readFileSync(envPath, 'utf-8')))
-}
-
-const sequelize = new Clasyquelize(env.DATABASE)
+const sequelize = new Clasyquelize('sqlite:database.sqlite')
 
 
 class Entity extends ClasyModel {
@@ -52,25 +42,35 @@ class Book extends Entity {
 
 }
 
+
 (async () => {
   sequelize.attachModel(User, Company, Book)
   await sequelize.sync({ force: true })
 
-  const user = await User.create({ uuid: 'uuid4_user_1', username: 'username' })
+  const user1 = await User.create({ uuid: 'uuid4_user_1', username: 'username' })
+  const user2 = await User.create({ uuid: 'uuid4_user_2', username: 'username' })
   const compan = await Company.create({ uuid: 'uuid4_company_1', companyname: 'companyname' })
-  const book = await Book.create({
+  const book1 = await Book.create({
     uuid: 'uuid4_book_1',
     title: 'title',
-    author: user.id,
-    chiefEditor: user.id,
+    author: user1.id,
+    chiefEditor: user1.id,
+    publisher: compan.id
+  })
+  const book2 = await Book.create({
+    uuid: 'uuid4_book_2',
+    title: 'title',
+    author: user1.id,
+    chiefEditor: user2.id,
     publisher: compan.id
   })
   const book1Read = await Book.findByUUID('uuid4_book_1', { include: [Book.author, Book.chiefEditor, Book.publisher] })
   const author1Read = await User.findByUUID('uuid4_user_1', { include: [User.as(Book.author), User.as(Book.chiefEditor)] })
 
-  console.log('Book.create', book.toJSON())
-  console.log('Book.findByUUID', book1Read.toJSON())
-  console.log('User.findByUUID', author1Read.toJSON())
+  console.log('Book1.create:', book1.toJSON())
+  console.log('Book2.create:', book2.toJSON())
+  console.log('Book1.findByUUID:', book1Read.toJSON())
+  console.log('User1.findByUUID:', author1Read.toJSON())
 
   await sequelize.close()
 })()
