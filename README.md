@@ -1,4 +1,4 @@
-# clasyquelize
+# Clasyquelize [![npm][npm_img]][npm_url] [![Checks ➜ Tests ➜ Publish][build_img]][build_url]
 
 Classifying wrapper for [Sequelize ORM](https://sequelize.org/)
 
@@ -184,3 +184,11 @@ User1.findByUUID: {
   ]
 }
 ```
+
+[npm_img]: https://img.shields.io/npm/v/@nodutilus/clasyquelize.svg
+
+[npm_url]: https://www.npmjs.com/package/@nodutilus/clasyquelize
+
+[build_img]: https://github.com/nodutilus/clasyquelize/actions/workflows/main.yml/badge.svg?branch=main
+
+[build_url]: https://github.com/nodutilus/clasyquelize/actions/workflows/main.yml?query=branch:main
